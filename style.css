@@ -314,7 +314,7 @@ textarea:focus{
 }
 
 .sidebar-actions{
-  margin-top:auto;
+  margin-top:0;
 }
 
 .chat-wrap{
