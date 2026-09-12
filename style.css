@@ -323,12 +323,14 @@ textarea:focus{
   display:flex;
   flex-direction:column;
   min-height:0;
+
+  /*
+   * Omogoči, da so vsebine klepeta pozicionirane glede
+   * na celotno razpoložljivo širino učilnice.
+   */
+  position:relative;
 }
 
-/*
- * Vsebina klepeta ima enoten osrednji stolpec.
- * AI odgovori in vnosno polje se tako vizualno poravnajo.
- */
 .chat-scroll{
   flex:1;
   overflow-y:auto;
@@ -338,12 +340,20 @@ textarea:focus{
   gap:16px;
 }
 
-/* AI učitelj */
+/*
+ * OSREDNJI STOLPEC
+ *
+ * AI odgovor je postavljen na sredino CELOTNEGA EKRANA,
+ * ne na sredino prostora desno od levega menija.
+ *
+ * Ker je sidebar širok 270px, uporabimo transformacijo,
+ * ki sredino vsebine premakne za polovico širine menija.
+ */
 
 .msg.ai{
   align-self:center;
-  width:100%;
-  max-width:720px;
+  width:720px;
+  max-width:calc(100vw - 32px);
   padding:13px 16px;
   border-radius:10px;
   line-height:1.6;
@@ -351,6 +361,9 @@ textarea:focus{
   background:#fff;
   border:1px solid var(--paper-line);
   border-top-left-radius:2px;
+
+  position:relative;
+  left:-135px;
 }
 
 /* Tvoj odgovor */
@@ -403,12 +416,24 @@ textarea:focus{
 .composer{
   display:flex;
   gap:10px;
-  width:100%;
-  max-width:752px;
+
+  /*
+   * Širina ostane podobna širini AI odgovora.
+   */
+  width:720px;
+  max-width:calc(100vw - 32px);
+
+  /*
+   * Centriranje glede na celoten ekran.
+   */
   margin:0 auto;
+
   padding:14px 0 20px;
   border-top:1px solid var(--paper-line);
   background:var(--paper);
+
+  position:relative;
+  left:-135px;
 }
 
 .composer-input{
@@ -480,13 +505,21 @@ textarea:focus{
     padding:20px 16px 10px;
   }
 
+  /*
+   * Na telefonu levega menija ni več ob strani,
+   * zato dodatni premik ni potreben.
+   */
   .msg.ai{
+    width:100%;
     max-width:720px;
+    left:0;
   }
 
   .composer{
+    width:100%;
     max-width:none;
     padding:12px 16px 16px;
+    left:0;
   }
 }
 
