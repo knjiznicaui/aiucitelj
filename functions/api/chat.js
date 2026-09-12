@@ -5,6 +5,19 @@
 const PRIMARY_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 const FALLBACK_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8-fast";
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "https://knjiznicaui.github.io",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type"
+};
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: CORS_HEADERS
+  });
+}
+
 function buildSystemPrompt(p) {
   const {
     subject,
@@ -229,12 +242,6 @@ export async function onRequestPost(context) {
     modeSwitch: Boolean(body.modeSwitch)
   };
 
-  /*
-   * Omejimo zgodovino pogovora.
-   *
-   * To zmanjša porabo AI kvote in prepreči,
-   * da bi zahtevek postal nepotrebno velik.
-   */
   const history = Array.isArray(body.history)
     ? body.history.slice(-12)
     : [];
@@ -246,10 +253,6 @@ export async function onRequestPost(context) {
     }
   ];
 
-  /*
-   * Dodamo samo dovoljena sporočila.
-   * Vsako posamezno sporočilo omejimo na 4000 znakov.
-   */
   for (const m of history) {
     if (
       m &&
@@ -263,31 +266,18 @@ export async function onRequestPost(context) {
     }
   }
 
-  /*
-   * Za začetek ure ali spremembo načina dodamo
-   * posebno sistemsko navodilo kot uporabniško sporočilo.
-   */
   if (params.kickoff || params.modeSwitch) {
     messages.push({
       role: "user",
       content: buildKickoffUserMessage(params)
     });
-  }
-
-  /*
-   * Varnostna varovalka:
-   * AI model naj ima na koncu vedno uporabniško sporočilo.
-   */
-  else if (messages[messages.length - 1]?.role !== "user") {
+  } else if (messages[messages.length - 1]?.role !== "user") {
     messages.push({
       role: "user",
       content: "Nadaljuj."
     });
   }
 
-  /*
-   * Preverimo, ali je Workers AI binding dejansko nastavljen.
-   */
   if (!env.AI) {
     return json(
       {
@@ -298,9 +288,6 @@ export async function onRequestPost(context) {
     );
   }
 
-  /*
-   * Najprej poskusimo z močnejšim modelom.
-   */
   try {
     const reply = await runModel(
       env,
@@ -313,11 +300,6 @@ export async function onRequestPost(context) {
     });
 
   } catch (primaryError) {
-
-    /*
-     * Če primarni model ne uspe, poskusimo z lažjim
-     * rezervnim modelom.
-     */
     try {
       const reply = await runModel(
         env,
@@ -330,11 +312,6 @@ export async function onRequestPost(context) {
       });
 
     } catch (fallbackError) {
-
-      /*
-       * Napake zabeležimo v Cloudflare log,
-       * uporabniku pa ne izpisujemo tehničnih podrobnosti.
-       */
       console.error(
         "Workers AI primary error:",
         primaryError
@@ -386,7 +363,8 @@ function json(obj, status = 200) {
       status,
       headers: {
         "content-type":
-          "application/json; charset=utf-8"
+          "application/json; charset=utf-8",
+        ...CORS_HEADERS
       }
     }
   );
