@@ -25,6 +25,7 @@
   const msgInput = $("msg-input");
   const btnChangeSubject = $("btn-change-subject");
   const btnResetTopic = $("btn-reset-topic");
+  const btnDontKnow = $("btn-dont-know");
 
   /* ---------------- stanje ---------------- */
   let state = null; // se napolni ob "Vstopi v razred"
@@ -255,20 +256,32 @@
     });
   }
 
-  /* ---------------- pošiljanje na strežnik ---------------- */
-  composer.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const text = msgInput.value.trim();
+  /* ---------------- pošiljanje sporočila ---------------- */
+  function submitStudentMessage(text) {
     if (!text || !state || state.busy) return;
+
     msgInput.value = "";
     autoGrow();
+
     addMessage("user", text);
     state.history.push({ role: "user", content: text });
     saveProgress();
+
     sendToTutor({});
+  }
+
+  composer.addEventListener("submit", (e) => {
+    e.preventDefault();
+    submitStudentMessage(msgInput.value.trim());
+  });
+
+  /* ---------------- gumb "Ne vem" ---------------- */
+  btnDontKnow.addEventListener("click", () => {
+    submitStudentMessage("Ne vem");
   });
 
   msgInput.addEventListener("input", autoGrow);
+
   function autoGrow() {
     msgInput.style.height = "auto";
     msgInput.style.height = Math.min(160, msgInput.scrollHeight) + "px";
@@ -277,6 +290,8 @@
   async function sendToTutor({ kickoff = false, modeSwitch = false } = {}) {
     state.busy = true;
     $("btn-send").disabled = true;
+    btnDontKnow.disabled = true;
+
     const thinkingEl = addMessage("ai", "Razmišlja …", { thinking: true });
 
     const payload = {
@@ -300,29 +315,49 @@
       });
 
       if (!res.ok) throw new Error("Strežnik je vrnil napako: " + res.status);
+
       const data = await res.json();
       let reply = data.reply || "Oprosti, nekaj je šlo narobe. Poskusi znova.";
 
       const diffMatch = reply.match(/\[TEZAVNOST:(GOR|DOL|ENAKO)\]\s*$/i);
+
       if (diffMatch) {
         reply = reply.slice(0, diffMatch.index).trim();
-        if (diffMatch[1].toUpperCase() === "GOR") state.difficulty = Math.min(10, state.difficulty + 1);
-        if (diffMatch[1].toUpperCase() === "DOL") state.difficulty = Math.max(1, state.difficulty - 1);
+
+        if (diffMatch[1].toUpperCase() === "GOR") {
+          state.difficulty = Math.min(10, state.difficulty + 1);
+        }
+
+        if (diffMatch[1].toUpperCase() === "DOL") {
+          state.difficulty = Math.max(1, state.difficulty - 1);
+        }
+
         updateMeter();
       }
 
       thinkingEl.remove();
       addMessage("ai", reply);
+
       if (!kickoff || true) {
         state.history.push({ role: "assistant", content: reply });
       }
+
       saveProgress();
+
     } catch (err) {
       thinkingEl.remove();
-      addMessage("ai", "Povezava s strežnikom ni uspela. Preveri internetno povezavo ali poskusi kasneje.\n\n(" + err.message + ")");
+
+      addMessage(
+        "ai",
+        "Povezava s strežnikom ni uspela. Preveri internetno povezavo ali poskusi kasneje.\n\n(" +
+        err.message +
+        ")"
+      );
+
     } finally {
       state.busy = false;
       $("btn-send").disabled = false;
+      btnDontKnow.disabled = false;
       msgInput.focus();
     }
   }
