@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Razred — AI učitelj za vsak predmet</title>
+<meta name="description" content="AI učitelj, ki razlaga, sprašuje in vodi skozi celoten slovenski šolski sistem — od osnovne šole do fakultete.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2218%22 fill=%22%231E3A2F%22/><text x=%2250%22 y=%2266%22 font-size=%2258%22 text-anchor=%22middle%22 fill=%22%23E8C468%22 font-family=%22Georgia,serif%22>R</text></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ============ NASLOVNICA / TABLA ============ -->
+  <header class="board" id="board">
+    <div class="board-inner">
+      <p class="board-eyebrow">Digitalna razredna tabla</p>
+      <h1 class="board-title">Razred<span class="chalk-underline"></span></h1>
+      <p class="board-sub">AI učitelj za katerikoli predmet — od 1. razreda osnovne šole do fakultete. Ne poda ti odgovora. Pripelje te do njega.</p>
+    </div>
+    <div class="chalk-dust" aria-hidden="true"></div>
+  </header>
+
+  <!-- ============ IZBIRNI PANEL ============ -->
+  <section class="setup" id="setup-screen">
+    <div class="notebook-page setup-card">
+      <div class="setup-step">
+        <label class="setup-label" for="sel-stopnja">1. Stopnja izobraževanja</label>
+        <select id="sel-stopnja" class="select"></select>
+      </div>
+
+      <div class="setup-step" id="row-sub1">
+        <label class="setup-label" id="lbl-sub1" for="sel-sub1">2. Razred / program</label>
+        <select id="sel-sub1" class="select"></select>
+      </div>
+
+      <div class="setup-step" id="row-sub2" hidden>
+        <label class="setup-label" id="lbl-sub2" for="sel-sub2">3. Letnik</label>
+        <select id="sel-sub2" class="select"></select>
+      </div>
+
+      <div class="setup-step">
+        <label class="setup-label" id="lbl-predmet" for="sel-predmet">Predmet</label>
+        <select id="sel-predmet" class="select"></select>
+      </div>
+
+      <div class="setup-step">
+        <label class="setup-label" for="sel-tezavnost">Raven poglobljenosti</label>
+        <select id="sel-tezavnost" class="select"></select>
+      </div>
+
+      <div class="setup-step">
+        <label class="setup-label" for="inp-tema">Tema znotraj predmeta (neobvezno)</label>
+        <input id="inp-tema" class="select" type="text" placeholder="npr. »ulomki«, »Prešeren«, »Newtonovi zakoni« …">
+      </div>
+
+      <button class="btn btn-primary btn-start" id="btn-start">Vstopi v razred →</button>
+    </div>
+  </section>
+
+  <!-- ============ UČILNICA (CHAT) ============ -->
+  <section class="classroom" id="classroom" hidden>
+
+    <aside class="sidebar">
+      <button class="btn btn-ghost" id="btn-change-subject">← Zamenjaj predmet</button>
+
+      <div class="sidebar-block">
+        <p class="sidebar-kicker">Trenutna ura</p>
+        <p class="sidebar-subject" id="side-subject">—</p>
+        <p class="sidebar-meta" id="side-meta">—</p>
+      </div>
+
+      <div class="sidebar-block">
+        <p class="sidebar-kicker">Napredek v tej temi</p>
+        <div class="meter"><div class="meter-fill" id="meter-fill"></div></div>
+        <p class="sidebar-meta" id="meter-label">Stopnja 1 / 10</p>
+      </div>
+
+      <div class="sidebar-block">
+        <p class="sidebar-kicker">Način dela</p>
+        <div class="mode-list" id="mode-list"></div>
+      </div>
+
+      <div class="sidebar-block sidebar-actions">
+        <button class="btn btn-secondary" id="btn-reset-topic">Počisti to uro</button>
+      </div>
+    </aside>
+
+    <main class="chat-wrap">
+      <div class="chat-scroll" id="chat-scroll">
+        <!-- sporočila se dodajajo tukaj -->
+      </div>
+
+      <form class="composer" id="composer">
+        <textarea id="msg-input" class="composer-input" rows="1" placeholder="Napiši odgovor, vprašanje ali prosi za razlago …" autofocus></textarea>
+        <button type="submit" class="btn btn-primary composer-send" id="btn-send">Pošlji</button>
+      </form>
+    </main>
+  </section>
+
+  <footer class="site-footer">
+    <p>Razred · AI učitelj · deluje na Cloudflare Pages + Workers AI · brez beleženja na strežniku</p>
+  </footer>
+</div>
+
+<script src="data/curriculum.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

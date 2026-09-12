@@ -1,0 +1,9 @@
+name = "razred-ai-ucitelj"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "."
+
+# Ta binding omogoča lokalno testiranje z `wrangler pages dev`.
+# Ko projekt povežeš s Cloudflare Pages preko dashboarda, moraš isti binding
+# (ime "AI") dodati še ročno v: Settings -> Functions -> AI bindings.
+[ai]
+binding = "AI"

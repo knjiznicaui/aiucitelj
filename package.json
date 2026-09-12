@@ -1,0 +1,13 @@
+{
+  "name": "razred-ai-ucitelj",
+  "version": "1.0.0",
+  "description": "AI učitelj za vsak predmet slovenskega šolskega sistema — Cloudflare Pages + Workers AI.",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler pages dev . --ai=AI",
+    "deploy": "wrangler pages deploy ."
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  }
+}
